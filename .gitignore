@@ -10,3 +10,7 @@ AiHive-API.md
 v2ray*.json
 api.key
 .env
+app.tar.gz
+*.bak*
+/main.py
+/openai_compat.py
