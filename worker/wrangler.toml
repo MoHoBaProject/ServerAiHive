@@ -1,0 +1,10 @@
+# Worker اعلان تلگرام برای AiHive (دیپلوی از ریپوی GitHub با Cloudflare)
+# هیچ راز یا توکنی اینجا نیست؛ سه secret توی داشبورد Worker ست می‌شن:
+#   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, NOTIFY_SECRET
+name = "aihive-notify"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+routes = [
+  { pattern = "notify.vertasquad.ir", custom_domain = true }
+]
