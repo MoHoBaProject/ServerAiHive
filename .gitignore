@@ -1,0 +1,12 @@
+data/
+.venv/
+__pycache__/
+*.pyc
+*.key
+*.pem
+*.pem.old
+*.bak
+AiHive-API.md
+v2ray*.json
+api.key
+.env

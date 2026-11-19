@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+playwright
+httpx
+jinja2
+cryptography

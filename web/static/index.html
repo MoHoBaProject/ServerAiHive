@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AiHive</title>
+<style>
+  body{font:15px system-ui,sans-serif;background:#111;color:#eee;max-width:720px;margin:0 auto;padding:16px}
+  select,textarea,button{font:inherit;background:#222;color:#eee;border:1px solid #444;border-radius:8px;padding:8px}
+  textarea{width:100%;box-sizing:border-box;height:110px;margin:8px 0}
+  button{cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  pre{white-space:pre-wrap;background:#1a1a1a;border-radius:8px;padding:12px;min-height:60px}
+  #st{opacity:.7;font-size:13px}
+</style>
+</head>
+<body>
+<div class="row">
+  <select id="acc"></select>
+  <button onclick="add('claude')">+ Claude</button>
+  <button onclick="add('chatgpt')">+ ChatGPT</button>
+  <button onclick="openAcc()">Open</button>
+</div>
+<textarea id="msg" placeholder="Message"></textarea>
+<div class="row">
+  <button onclick="go()">Send</button>
+  <label><input type="checkbox" id="nc" checked> new chat</label>
+</div>
+<div id="st"></div>
+<pre id="out"></pre>
+<script>
+const $ = (i) => document.getElementById(i);
+const st = (t) => ($('st').textContent = t);
+async function api(path, method = 'GET', body) {
+  const r = await fetch(path, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  return r.json();
+}
+async function load(sel) {
+  const list = await api('/api/accounts');
+  $('acc').innerHTML = list.map(a => `<option value="${a.id}">${a.name} (${a.provider})</option>`).join('');
+  if (sel) $('acc').value = sel;
+}
+async function add(p) { const a = await api('/api/accounts', 'POST', { provider: p }); await load(a.id); }
+async function openAcc() {
+  const id = $('acc').value; if (!id) return;
+  st('opening...'); const r = await api(`/api/accounts/${id}/open`, 'POST'); st('opened: ' + (r.url || JSON.stringify(r)));
+}
+async function go() {
+  const id = $('acc').value, text = $('msg').value.trim(); if (!id || !text) return;
+  $('out').textContent = ''; st('sending...');
+  const s = await api(`/api/accounts/${id}/send`, 'POST', { text, new_chat: $('nc').checked });
+  if (!s.ok) { st('send failed'); $('out').textContent = JSON.stringify(s); return; }
+  st('waiting for reply...');
+  const r = await api(`/api/accounts/${id}/reply`);
+  st(r.ok ? 'done' : 'failed: ' + r.error); $('out').textContent = r.text || '';
+}
+load();
+</script>
+</body>
+</html>
